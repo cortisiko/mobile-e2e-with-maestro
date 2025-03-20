@@ -28,3 +28,4 @@ jobs:
          export ANDROID_HOME=$HOME/android-sdk
          export PATH=$ANDROID_HOME/tools/cmdline-tools/bin:$PATH
          export PATH=$ANDROID_HOME/platform-tools:$PATH
+         echo $ANDROID_HOME
