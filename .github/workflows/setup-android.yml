@@ -6,93 +6,75 @@ on:
       - '*'
 jobs:
   create-emulator:
-    # if: contains(github.event.pull_request.labels.*.name, 'create-emulator')
     runs-on: macos-latest
     steps:
       - name: Install JDK
         run: |
           brew install openjdk@17
-          echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.bash_profile
-          source ~/.bash_profile
+          echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> $HOME/.bash_profile
+          source $HOME/.bash_profile
           java -version  # Verify Java installation
 
       - name: Setup Android SDK
         run: |
-          # Create directory structure
-          mkdir -p $HOME/Android/sdk/cmdline-tools
-          cd $HOME/Android/sdk
+          # Define SDK path
+          export ANDROID_HOME=$HOME/Android/sdk
 
+          # Set environment variables for SDK and tools (only once)
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+          # Create SDK directories
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME
+
+          # Download & extract command line tools
           curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-mac-9477386_latest.zip
-          unzip cmdline-tools.zip
+          unzip cmdline-tools.zip -d cmdline-tools
           
-          # Prepare correct directory structure
-          mkdir -p cmdline-tools/latest
-          mv cmdline-tools/* cmdline-tools/latest/ || true
-          
-          # Remove duplicate directory if it exists
-          if [ -d cmdline-tools/latest/cmdline-tools ]; then
-            rm -rf cmdline-tools/latest/cmdline-tools
-          fi
-          
-          # Set environment variables for future steps
-          echo "ANDROID_HOME=$HOME/Android/sdk" >> $GITHUB_ENV
-          echo "$HOME/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-          echo "$HOME/Android/sdk/platform-tools" >> $GITHUB_PATH
-          echo "GITHUB ENV $GITHUB_PATH"
-      
+          # Ensure correct directory structure
+          mv cmdline-tools/cmdline-tools cmdline-tools/latest || true
+
+
       - name: Accept Android SDK Licenses
         run: |
-          echo "Creating licenses directory if needed..."
           mkdir -p $ANDROID_HOME/licenses
-          
-          echo "Pre-accepting licenses..."
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_HOME/licenses/android-sdk-license
-          
-          echo "Explicitly accepting all licenses through sdkmanager..."
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          
-          # Alternative license acceptance method if the above fails
-          echo "Alternative license acceptance method..."
-          printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
-      - name: Install Android components
+      - name: Install Android Components
         run: |
-          ls -la $ANDROID_HOME/cmdline-tools/latest/bin
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-32"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          sdkmanager --install "platform-tools" "platforms;android-32" "emulator"
+          sdkmanager --install "system-images;android-32;google_apis;x86_64"
+          yes | sdkmanager --licenses
 
-      - name: Create Emulator Image and Boot
+      - name: Create Emulator
         run: |
-          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
+          avdmanager list device
           echo "no" | avdmanager create avd \
           --name test_device \
           --package "system-images;android-32;google_apis;x86_64" \
           --device "pixel_6_pro"
-          
-          # Test that emulator was created
+
           ls -la $HOME/.android/avd/
-          nohup emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -verbose &
+
+      - name: Start Emulator
+        run: |
+          nohup $ANDROID_HOME/emulator/emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -verbose &
+
       - name: Verify Emulator Launch
         run: |
-          emulator -list-avds
-          emulator -avd test_device
-          while [[ "$(adb shell getprop sys.boot_completed)" != "1" ]]; do
-              echo "Waiting for emulator to boot..."
-              sleep 5
+          echo "Waiting for emulator to start..."
+          adb wait-for-device
+          until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null)" == "1" ]]; do
+            echo "Emulator is still booting..."
+            sleep 5
           done
-          echo "Emulator is fully booted!"
+          echo "Emulator booted!"
           adb shell input keyevent 82
           adb shell input touchscreen swipe 500 1000 500 500
-
-          # #Launch emulator
-          # nohup emulator -avd test_avd -no-window -no-audio -gpu swiftshader_indirect &
-          # adb wait-for-device
-          # adb shell input keyevent 82
-
-          # #verify it was launch correctly
-          # adb devices
+          adb devices
