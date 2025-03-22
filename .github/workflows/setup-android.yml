@@ -45,8 +45,8 @@ jobs:
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-34;google_apis;x86_64"
-          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          
       - name: Create Emulator Image
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
