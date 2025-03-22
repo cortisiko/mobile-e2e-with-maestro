@@ -6,7 +6,7 @@ on:
       - '*'
 jobs:
   create-emulator:
-    runs-on: linux-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Install Brew
         run: |
