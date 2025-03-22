@@ -50,10 +50,10 @@ jobs:
       - name: Create Emulator Image
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
-          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
-            --name test_device \
-            --package "system-images;android-34;google_apis;x86_64" \
-            --device "pixel_6"
+          echo "no" | avdmanager create avd \
+          --name test_device \
+          --package "system-images;android-33;google_apis;x86_64" \
+          --device "pixel_6_pro"
           
           # Test that emulator was created
           ls -la $HOME/.android/avd/
