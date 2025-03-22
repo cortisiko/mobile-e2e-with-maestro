@@ -1,3 +1,9 @@
+name: Setup Android Emulator
+run-name: ${{ github.actor }} is testing setting up an emulator on GitHub Actions 🚀
+on:
+  push:
+    branches:
+      - '*'
 create-emulator:
   runs-on: ubuntu-latest
   steps:
