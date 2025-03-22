@@ -11,6 +11,8 @@ jobs:
       - name: Install Brew
         run: |
            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+           echo "eval \$($HOME/.linuxbrew/bin/brew shellenv)" >>~/.profile
+           eval "$($HOME/.linuxbrew/bin/brew shellenv)"
 
       - name: Install JDK
         run: |
