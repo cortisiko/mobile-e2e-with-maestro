@@ -60,7 +60,7 @@ jobs:
       - name: Start Emulator
         run: |
           echo "Starting Emulator..."
-          nohup emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -verbose &
+          nohup emulator -avd test_device -no-window -no-accel -gpu swiftshader_indirect -verbose &
           adb wait-for-device
           while [[ "$(adb shell getprop sys.boot_completed)" != "1" ]]; do
             echo "Waiting for emulator to boot..."
