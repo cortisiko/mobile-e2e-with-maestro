@@ -40,23 +40,59 @@ jobs:
 
       - name: Install Android components
         run: |
+          echo "Checking available SDK tools..."
           ls -la $ANDROID_HOME/cmdline-tools/latest/bin
+          
+          echo "Listing currently installed packages..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
+          
+          echo "Installing core components..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
+          
+          echo "Installing Android platform..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-32"
+          
+          echo "Installing system image (this may take a while)..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          echo "Accepting licenses..."
+          echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          echo "Verifying installation..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-32"
+
+      - name: Debug system images
+        run: |
+          echo "Available system image directories:"
+          find $ANDROID_HOME/system-images -type d -maxdepth 2 || echo "No system-images directory found"
+          
+          echo "List all valid system images:"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images" || echo "No system images found"
 
       - name: Create Emulator Image
         run: |
-          # First check available system images to confirm what's installed
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep system-images
-         
+          # List available devices
           $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
-          echo "no" | avdmanager create avd \
-          --name test_device \
-          --package "system-images;android-32;google_apis;x86_64" \
-          --device "pixel_6_pro"
+          
+          echo "Checking for available images before creating AVD..."
+          AVAILABLE_IMAGES=$($ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images" | head -1 | awk -F'|' '{print $1}' | xargs)
+          
+          if [ -z "$AVAILABLE_IMAGES" ]; then
+            echo "No system images available. Using a fallback approach with API 29..."
+            $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-29;google_apis;x86_64"
+            SYSTEM_IMAGE="system-images;android-29;google_apis;x86_64"
+          else
+            echo "Using available system image: $AVAILABLE_IMAGES"
+            SYSTEM_IMAGE=$AVAILABLE_IMAGES
+          fi
+          
+          # Create the AVD with full path to avdmanager
+          echo "Creating AVD with image: $SYSTEM_IMAGE"
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
+            --name test_device \
+            --package "$SYSTEM_IMAGE" \
+            --device "pixel_6"
           
           # Test that emulator was created
+          echo "Checking if AVD was created successfully:"
           ls -la $HOME/.android/avd/
