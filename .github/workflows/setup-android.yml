@@ -55,12 +55,12 @@ jobs:
           echo "Installing system image (this may take a while)..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
           
-          echo "Accepting licenses..."
-          echo y | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          echo "Accepting licenses with proper method..."
+          for i in {1..10}; do echo y; done | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
           
-          echo "Verifying installation..."
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-32"
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          echo "Verifying system image installation..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images"
+          ls -la $ANDROID_HOME/system-images || echo "Still no system-images directory"
 
       - name: Debug system images
         run: |
