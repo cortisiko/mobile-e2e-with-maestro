@@ -79,7 +79,7 @@ jobs:
           nohup emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -verbose &
       - name: Verify Emulator Launch
         run: |
-          emualtor -list-avds
+          emulator -list-avds
           while [[ "$(adb shell getprop sys.boot_completed)" != "1" ]]; do
               echo "Waiting for emulator to boot..."
               sleep 5
