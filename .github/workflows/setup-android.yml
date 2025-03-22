@@ -1,49 +1,59 @@
 name: Setup Android Emulator
 run-name: ${{ github.actor }} is testing setting up an emulator on GitHub Actions 🚀
-on: 
+on:
   pull_request:
     types: [labeled]
-
 jobs:
   create-emulator:
     if: contains(github.event.pull_request.labels.*.name, 'create-emulator')
     runs-on: macos-latest
     steps:
-      - name: Install Brew
-        run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install JDK
         run: |
           brew install openjdk@17
-          echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> /Users/runner/.bash_profile
-      - name: Install SDK command line tools
+          echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.bash_profile
+          source ~/.bash_profile
+          java -version  # Verify Java installation
+
+      - name: Setup Android SDK
         run: |
-         mkdir -p ~/Android/sdk
-         cd ~/Android/sdk
-         wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
-         unzip commandlinetools-linux-9477386_latest.zip
-         mv cmdline-tools latest
-         mkdir tools
-         mv latest tools/cmdline-tools
-         export ANDROID_HOME=$HOME/android-sdk
-         export PATH=$ANDROID_HOME/tools/cmdline-tools/bin:$PATH
-         export PATH=$ANDROID_HOME/platform-tools:$PATH
-          # Set environment variables for this and future steps
-         echo "ANDROID_HOME=$HOME/Android/sdk" >> $GITHUB_ENV
-         echo "$HOME/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
-         echo "$HOME/Android/sdk/platform-tools" >> $GITHUB_PATH
-         echo $ANDROID_HOME
-         echo $GITHUB_PATH
-      - name: Install SDK manager
+          # Create directory structure
+          mkdir -p $HOME/Android/sdk/cmdline-tools
+          cd $HOME/Android/sdk
+
+          curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-mac-9477386_latest.zip
+          unzip cmdline-tools.zip
+          
+          # Prepare correct directory structure
+          mkdir -p cmdline-tools/latest
+          mv cmdline-tools/* cmdline-tools/latest/ || true
+          
+          # Remove duplicate directory if it exists
+          if [ -d cmdline-tools/latest/cmdline-tools ]; then
+            rm -rf cmdline-tools/latest/cmdline-tools
+          fi
+          
+          # Set environment variables for future steps
+          echo "ANDROID_HOME=$HOME/Android/sdk" >> $GITHUB_ENV
+          echo "$HOME/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          echo "$HOME/Android/sdk/platform-tools" >> $GITHUB_PATH
+
+      - name: Install Android components
         run: |
-          sdkmanager --install "emulator" "platform-tools" 
-          sdkmanager --install "platforms;android-34" 
-          sdkmanager --install "system-images;android-34;google_apis;x86_64"
-          # Accept licenses
-          yes | sdkmanager --licenses
+          ls -la $ANDROID_HOME/cmdline-tools/latest/bin
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-34;google_apis;x86_64"
+          echo "y" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+
       - name: Create Emulator Image
         run: |
-          echo "no" | avdmanager create avd \
+          $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list device
+          echo "no" | $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd \
             --name test_device \
             --package "system-images;android-34;google_apis;x86_64" \
             --device "pixel_6"
+          
+          # Test that emulator was created
+          ls -la $HOME/.android/avd/
