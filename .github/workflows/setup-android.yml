@@ -64,8 +64,9 @@ jobs:
 
       - name: Start Emulator
         run: |
-          nohup $ANDROID_HOME/emulator/emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -verbose &
+          nohup $ANDROID_HOME/emulator/emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -verbose -cores 4 &
           sleep 15
+          ps aux | grep emulator
           # adb shell getprop sys.boot_complete
           adb shell input keyevent 82
           # adb shell input touchscreen swipe 500 1000 500 500
