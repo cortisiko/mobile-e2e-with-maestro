@@ -43,6 +43,17 @@ jobs:
         run: |
           echo "Checking available SDK tools..."
           ls -la $ANDROID_HOME/cmdline-tools/latest/bin
+
+            echo "Checking SDK Manager settings..."
+          cat $HOME/.android/repositories.cfg 2>/dev/null || echo "No repositories.cfg file found"
+          
+          echo "Creating initial repositories.cfg if needed..."
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
+          
+          echo "Updating SDK tools to resolve XML issues..."
+          # First get the latest tools
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
           
           echo "Listing currently installed packages..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
