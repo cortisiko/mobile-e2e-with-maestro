@@ -64,6 +64,7 @@ jobs:
 
       - name: Debug system images
         run: |
+          echo "Android home: $ANDROID_HOME"
           echo "Available system image directories:"
           find $ANDROID_HOME/system-images -type d -maxdepth 2 || echo "No system-images directory found"
           
