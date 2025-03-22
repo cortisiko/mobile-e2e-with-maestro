@@ -1,11 +1,12 @@
 name: Setup Android Emulator
 run-name: ${{ github.actor }} is testing setting up an emulator on GitHub Actions 🚀
 on:
-  pull_request:
-    types: [labeled]
+  push:
+    branches:
+      - '*'
 jobs:
   create-emulator:
-    if: contains(github.event.pull_request.labels.*.name, 'create-emulator')
+    # if: contains(github.event.pull_request.labels.*.name, 'create-emulator')
     runs-on: macos-latest
     steps:
       - name: Install JDK
