@@ -39,26 +39,28 @@ jobs:
           echo "$HOME/Android/sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
           echo "$HOME/Android/sdk/platform-tools" >> $GITHUB_PATH
           echo "GITHUB ENV $GITHUB_PATH"
+      - name: Accept Android SDK Licenses
+        run: |
+          echo "Creating licenses directory if needed..."
+          mkdir -p $ANDROID_HOME/licenses
+          
+          echo "Pre-accepting licenses..."
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_HOME/licenses/android-sdk-license
+          
+          echo "Explicitly accepting all licenses through sdkmanager..."
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          
+          # Alternative license acceptance method if the above fails
+          echo "Alternative license acceptance method..."
+          printf "y\ny\ny\ny\ny\ny\ny\ny\ny\ny\n" | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+        shell: /bin/bash -e {0}
+        env:
+          ANDROID_HOME: /Users/runner/Android/sdk
 
       - name: Install Android components
         run: |
-          echo "Checking available SDK tools..."
-          ls -la $ANDROID_HOME/cmdline-tools/latest/bin
-
-            echo "Checking SDK Manager settings..."
-          cat $HOME/.android/repositories.cfg 2>/dev/null || echo "No repositories.cfg file found"
-          
-          echo "Creating initial repositories.cfg if needed..."
-          mkdir -p $HOME/.android
-          touch $HOME/.android/repositories.cfg
-          
-          echo "Updating SDK tools to resolve XML issues..."
-          # First get the latest tools
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --update
-          
-          echo "Listing currently installed packages..."
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list
-          
           echo "Installing core components..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
           
@@ -68,12 +70,32 @@ jobs:
           echo "Installing system image (this may take a while)..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
           
-          echo "Accepting licenses with proper method..."
-          for i in {1..15}; do echo y; done | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          echo "Verifying installations..."
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-32"
           
-          echo "Verifying system image installation..."
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images"
-          ls -la $ANDROID_HOME/system-images || echo "Still no system-images directory"
+          echo "Checking system-images directory..."
+          find $ANDROID_HOME -name "system-images" || echo "Still no system-images directory"
+
+      # - name: Install Android components
+      #   run: |
+      #     echo "Checking available SDK tools..."
+      #     ls -la $ANDROID_HOME/cmdline-tools/latest/bin
+          
+      #     echo "Installing core components..."
+      #     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
+          
+      #     echo "Installing Android platform..."
+      #     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-32"
+          
+      #     echo "Installing system image (this may take a while)..."
+      #     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
+          
+      #     echo "Accepting licenses with proper method..."
+      #     for i in {1..15}; do echo y; done | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
+          
+      #     echo "Verifying system image installation..."
+      #     $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images"
+      #     ls -la $ANDROID_HOME/system-images || echo "Still no system-images directory"
 
       - name: Debug system images
         run: |
