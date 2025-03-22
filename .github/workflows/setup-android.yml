@@ -60,6 +60,7 @@ jobs:
           
           echo "Verifying installation..."
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --list | grep "system-images;android-32"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Debug system images
         run: |
