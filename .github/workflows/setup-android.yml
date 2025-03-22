@@ -80,6 +80,7 @@ jobs:
       - name: Verify Emulator Launch
         run: |
           emulator -list-avds
+          emulator -avd test_device
           while [[ "$(adb shell getprop sys.boot_completed)" != "1" ]]; do
               echo "Waiting for emulator to boot..."
               sleep 5
