@@ -76,10 +76,10 @@ jobs:
           
           # Test that emulator was created
           ls -la $HOME/.android/avd/
-          nohup emulator -avd test_avd -no-window -no-audio -gpu swiftshader_indirect -verbose &
+          nohup emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -verbose &
       - name: Verify Emulator Launch
         run: |
-          adb devices
+          emualtor -list-avds
           while [[ "$(adb shell getprop sys.boot_completed)" != "1" ]]; do
               echo "Waiting for emulator to boot..."
               sleep 5
