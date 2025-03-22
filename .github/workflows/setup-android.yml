@@ -59,11 +59,13 @@ jobs:
           --device "pixel_6_pro"
           sed -i '' 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
           sed -i '' 's/^vm.heapSize=.*/vm.heapSize=1024/' ~/.android/avd/test_device.avd/config.ini
+          sed -i '' 's/^hw.cpu.cores=.*/hw.cpu.cores=6/' ~/.android/avd/test_device.avd/config.ini
           ls -la $HOME/.android/avd/
 
       - name: Start Emulator
         run: |
           nohup $ANDROID_HOME/emulator/emulator -avd test_device -no-window -no-audio -gpu swiftshader_indirect -no-snapshot -no-boot-anim -verbose &
+          sleep 15
           adb shell getprop sys.boot_complete
           adb shell input keyevent 82
           adb shell input touchscreen swipe 500 1000 500 500
