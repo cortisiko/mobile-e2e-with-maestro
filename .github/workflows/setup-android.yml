@@ -10,7 +10,10 @@ jobs:
     steps:
       - name: Install OpenJDK 17
         run: |
-          echo "CPUSSSS" lscpu
+          echo "CPUSSSS" 
+          lscpu
+          echo "ARchetecture" 
+          uname -m
           sudo apt-get update
           sudo apt-get install -y openjdk-17-jdk
           java -version  # Verify Java installation
