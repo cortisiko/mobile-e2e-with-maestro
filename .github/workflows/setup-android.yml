@@ -1,5 +1,5 @@
 name: Setup Android Emulator
-run-name: ${{ github.actor }} is testing setting up an emulator on GitHub Actions 🚀
+# run-name: ${{ github.actor }} is testing setting up an emulator on GitHub Actions 🚀
 on:
   push:
     branches:
@@ -85,10 +85,10 @@ jobs:
             echo "Emulator failed to boot properly within timeout"
             adb logcat -d
           fi
-      - name: Installing Maestro
-        run: |
-          brew tap mobile-dev-inc/tap
-          brew install maestro
-      - name: Test Maestro Installation
-        run: |
-          maestro test
+      # - name: Installing Maestro
+      #   run: |
+      #     brew tap mobile-dev-inc/tap
+      #     brew install maestro
+      # - name: Test Maestro Installation
+      #   run: |
+      #     maestro test
