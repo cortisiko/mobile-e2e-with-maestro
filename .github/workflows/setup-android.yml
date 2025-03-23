@@ -47,12 +47,12 @@ jobs:
         run: |
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "emulator" "platform-tools"
           $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-32"
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;x86_64"
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "system-images;android-32;google_apis;armeabi-v7a"
           
       - name: Create Emulator
         run: |
           echo "Creating Emulator..."
-          echo "no" | avdmanager create avd --name test_device --package "system-images;android-32;google_apis;x86_64" --device "pixel_6_pro"
+          echo "no" | avdmanager create avd --name test_device --package "system-images;android-32;google_apis;armeabi-v7a" --device "pixel_6_pro"
           
           # Optimize emulator configuration for CI environment
           sed -i 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
