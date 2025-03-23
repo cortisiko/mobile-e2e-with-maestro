@@ -73,7 +73,7 @@ jobs:
           echo "Starting Emulator..."
           # Using no-snapshot, no-window, no-metrics, and other optimizations
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc-use-jwt &
-          
+          pgrep emulator
           # # Better boot detection with timeout
           # # timeout 300 bash -c 'while [[ -z $(adb shell getprop sys.boot_completed 2>/dev/null) ]]; do echo "Waiting for emulator to boot..."; sleep 10; done'
           
