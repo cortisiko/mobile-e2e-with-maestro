@@ -73,7 +73,7 @@ jobs:
         run: |
           echo "Starting Emulator..."
           # Using no-snapshot, no-window, no-metrics, and other optimizations
-          nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc-use-jwt &
+          nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
           echo "HERE IS THE PGREP"
           pgrep emulator
           sleep 600
