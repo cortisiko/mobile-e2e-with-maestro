@@ -85,6 +85,16 @@ jobs:
             echo "Emulator failed to boot properly within timeout"
             adb logcat -d
           fi
+      - name: Take Screenshot
+        run: |
+          adb exec-out screencap -p /sdcard/screenshot.png
+          adb pull /sdcard/screenshot.png screenshot.png
+
+      - name: Upload Screenshot Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: emulator-screenshot
+          path: screenshot.png
       # - name: Installing Maestro
       #   run: |
       #     brew tap mobile-dev-inc/tap
