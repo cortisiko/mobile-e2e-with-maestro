@@ -80,9 +80,12 @@ jobs:
           sleep 300
           if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
             echo "Emulator is fully booted!"
+            adb shell input keyevent 82
+            adb shell input touchscreen swipe 500 1000 500 500
           else
             echo "Emulator failed to boot properly within timeout"
             adb logcat -d
+          
           # # Better boot detection with timeout
           # # timeout 300 bash -c 'while [[ -z $(adb shell getprop sys.boot_completed 2>/dev/null) ]]; do echo "Waiting for emulator to boot..."; sleep 10; done'
           
