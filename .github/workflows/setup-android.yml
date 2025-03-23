@@ -50,6 +50,11 @@ jobs:
           sdkmanager --install "system-images;android-32;google_apis;x86_64"
           yes | sdkmanager --licenses
 
+      # - name: Fix Missing INI File
+      #   run: |
+      #     mkdir -p $HOME/.android
+      #     touch $HOME/.android/emu-update-last-check.ini
+
       - name: Create Emulator
         run: |
           # avdmanager list device
@@ -57,9 +62,9 @@ jobs:
           --name test_device \
           --package "system-images;android-32;google_apis;x86_64" \
           --device "pixel_6_pro"
-          sed -i '' 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
-          # sed -i '' 's/^vm.heapSize=.*/vm.heapSize=1024/' ~/.android/avd/test_device.avd/config.ini
-          sed -i '' 's/^hw.cpu.cores=.*/hw.cpu.cores=4/' ~/.android/avd/test_device.avd/config.ini
+          # sed -i '' 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
+          # # sed -i '' 's/^vm.heapSize=.*/vm.heapSize=1024/' ~/.android/avd/test_device.avd/config.ini
+          # sed -i '' 's/^hw.cpu.cores=.*/hw.cpu.cores=4/' ~/.android/avd/test_device.avd/config.ini
           ls -la $HOME/.android/avd/
 
       #     adb devices
@@ -67,7 +72,7 @@ jobs:
         run: |
           echo "Starting Emulator..."
           # Using no-snapshot, no-window, no-metrics, and other optimizations
-          nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 &
+          nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics &
           
           # Better boot detection with timeout
           timeout 300 bash -c 'while [[ -z $(adb shell getprop sys.boot_completed 2>/dev/null) ]]; do echo "Waiting for emulator to boot..."; sleep 10; done'
