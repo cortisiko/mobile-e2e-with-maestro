@@ -82,3 +82,4 @@ jobs:
           else
             echo "Emulator failed to boot properly within timeout"
             adb logcat -d
+          fi
