@@ -87,8 +87,9 @@ jobs:
           fi
       - name: Take Screenshot
         run: |
-          adb exec-out screencap -p /sdcard/screenshot.png
-          adb pull /sdcard/screenshot.png screenshot.png
+          adb shell mkdir -p /data/local/tmp/screenshots
+          adb shell chmod 777 /data/local/tmp/screenshots
+          adb exec-out screencap -p > screenshot.png
 
       - name: Upload Screenshot Artifact
         uses: actions/upload-artifact@v4
