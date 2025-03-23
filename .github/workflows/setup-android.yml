@@ -7,7 +7,7 @@ on:
 jobs:
   create-emulator:
     runs-on: macos-13
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Install JDK
         run: |
@@ -74,7 +74,7 @@ jobs:
           # Using no-snapshot, no-window, no-metrics, and other optimizations
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
           adb start-server
-          sleep 300
+          sleep 400
       - name: Check Emulator status
         run: | 
           if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
