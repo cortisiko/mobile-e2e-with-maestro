@@ -1,0 +1,94 @@
+name: Setup Android Emulator
+run-name: ${{ github.actor }} is testing setting up an emulator for Linux on GitHub Actions 🚀
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  create-emulator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Install OpenJDK 17
+        run: |
+          echo "CPUSSSS" 
+          lscpu
+          echo "ARchetecture" 
+          uname -m
+          sudo apt-get update
+          sudo apt-get install -y openjdk-17-jdk
+          java -version  # Verify Java installation
+          
+      - name: Install Android SDK dependencies
+        run: |
+          sudo apt-get install -y unzip curl
+          
+      - name: Setup Android SDK
+        run: |
+          # Create SDK directories
+          export ANDROID_HOME=$HOME/Android/sdk
+          mkdir -p $ANDROID_HOME/cmdline-tools
+          cd $ANDROID_HOME
+
+          # Download and extract command line tools
+          curl -o cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip cmdline-tools.zip -d cmdline-tools
+
+          # Move extracted tools to the correct directory
+          mv cmdline-tools/cmdline-tools cmdline-tools/latest || true
+
+          # Set environment variables
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Accept Android SDK Licenses
+        run: |
+          mkdir -p $ANDROID_HOME/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" >> $ANDROID_HOME/licenses/android-sdk-license
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Install Android Components
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-32" "emulator"
+          sdkmanager --install "system-images;android-32;google_apis;x86_64"
+          yes | sdkmanager --licenses
+
+      - name: Fix Missing INI File
+        run: |
+          mkdir -p $HOME/.android
+          touch $HOME/.android/emu-update-last-check.ini
+
+      - name: Create Emulator
+        run: |
+          # avdmanager list device
+          echo "no" | avdmanager create avd \
+          --name test_device \
+          --package "system-images;android-32;google_apis;x86_64" \
+          --device "pixel_6_pro"
+          # sed -i '' 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
+          # # sed -i '' 's/^vm.heapSize=.*/vm.heapSize=1024/' ~/.android/avd/test_device.avd/config.ini
+          # sed -i '' 's/^hw.cpu.cores=.*/hw.cpu.cores=4/' ~/.android/avd/test_device.avd/config.ini
+          ls -la $HOME/.android/avd/
+
+      - name: Start Emulator
+        run: |
+          echo "Starting Emulator..."
+          # Using no-snapshot, no-window, no-metrics, and other optimizations
+          nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
+          adb start-server
+          sleep 400
+
+      - name: Check Emulator status
+        run: | 
+          if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
+            echo "Emulator is fully booted!"
+            adb shell input keyevent 82
+            adb shell input touchscreen swipe 500 1000 500 500
+          else
+            echo "Emulator failed to boot properly within timeout"
+            adb logcat -d
+          fi
