@@ -75,6 +75,8 @@ jobs:
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
           adb start-server
           sleep 300
+      - name: Check Emulator status
+        run: | 
           if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
             echo "Emulator is fully booted!"
             adb shell input keyevent 82
