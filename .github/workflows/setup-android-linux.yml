@@ -1,4 +1,4 @@
-name: Setup Android Emulator
+name: Setup Android Emulator on Linux
 run-name: ${{ github.actor }} is testing setting up an emulator for Linux on GitHub Actions 🚀
 on:
   push:
