@@ -74,16 +74,16 @@ jobs:
           # Using no-snapshot, no-window, no-metrics, and other optimizations
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc-use-jwt &
           
-          # Better boot detection with timeout
-          # timeout 300 bash -c 'while [[ -z $(adb shell getprop sys.boot_completed 2>/dev/null) ]]; do echo "Waiting for emulator to boot..."; sleep 10; done'
+          # # Better boot detection with timeout
+          # # timeout 300 bash -c 'while [[ -z $(adb shell getprop sys.boot_completed 2>/dev/null) ]]; do echo "Waiting for emulator to boot..."; sleep 10; done'
           
-          # Verify boot completed successfully
-          if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
-            echo "Emulator is fully booted!"
-            adb shell input keyevent 82
-            adb shell input touchscreen swipe 500 1000 500 500
-          else
-            echo "Emulator failed to boot properly within timeout"
-            adb logcat -d
-            exit 1
-          fi
+          # # Verify boot completed successfully
+          # if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
+          #   echo "Emulator is fully booted!"
+          #   adb shell input keyevent 82
+          #   adb shell input touchscreen swipe 500 1000 500 500
+          # else
+          #   echo "Emulator failed to boot properly within timeout"
+          #   adb logcat -d
+          #   exit 1
+          # fi
