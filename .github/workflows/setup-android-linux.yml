@@ -98,3 +98,8 @@ jobs:
             echo "Emulator failed to boot properly within timeout"
             adb logcat -d
           fi
+      - name: Upload Screenshot Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulator-screenshot
+          path: screenshot.png
