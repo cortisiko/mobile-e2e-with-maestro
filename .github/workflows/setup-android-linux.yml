@@ -73,7 +73,7 @@ jobs:
           # avdmanager list device
           echo "no" | avdmanager create avd \
           --name test_device \
-          --package "system-images;android-32;google_apis;x86_64" \
+          --package "system-images;android-34;google_apis;x86_64" \
           --device "pixel_6_pro"
           # sed -i '' 's/^hw.ramSize=.*/hw.ramSize=2048/' ~/.android/avd/test_device.avd/config.ini
           # # sed -i '' 's/^vm.heapSize=.*/vm.heapSize=1024/' ~/.android/avd/test_device.avd/config.ini
