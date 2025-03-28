@@ -74,7 +74,7 @@ jobs:
           # Using no-snapshot, no-window, no-metrics, and other optimizations
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
           adb start-server
-          sleep 400
+          sleep 520
       - name: Check Emulator status
         run: | 
           if [[ "$(adb shell getprop sys.boot_completed)" == "1" ]]; then
@@ -87,7 +87,6 @@ jobs:
           fi
       - name: Take Screenshot
         run: |
-          sleep 120
           adb shell mkdir -p /data/local/tmp/screenshots
           adb shell chmod 777 /data/local/tmp/screenshots
           adb exec-out screencap -p > screenshot.png
