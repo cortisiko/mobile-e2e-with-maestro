@@ -1,5 +1,5 @@
 name: Setup Android Emulator on Linux
-run-name: ${{ github.actor }} is testing setting up an emulator for Linux on GitHub Actions 🚀
+# run-name: ${{ github.actor }} is testing setting up an emulator for Linux on GitHub Actions 🚀
 on:
   push:
     branches:
@@ -87,8 +87,7 @@ jobs:
           nohup emulator -avd test_device -no-window -no-snapshot -no-audio -no-boot-anim -memory 2048 -no-metrics -grpc -grpc-use-jwt &
           adb start-server
           sleep 520
-          adb shell input keyevent 82
-          adb shell input touchscreen swipe 500 1000 500 500
+          adb shell am start -n com.google.android.apps.photos/.home.HomeActivity
 
       - name: Check Emulator status
         run: | 
