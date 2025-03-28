@@ -87,6 +87,7 @@ jobs:
           fi
       - name: Take Screenshot
         run: |
+          sleep 120
           adb shell mkdir -p /data/local/tmp/screenshots
           adb shell chmod 777 /data/local/tmp/screenshots
           adb exec-out screencap -p > screenshot.png
