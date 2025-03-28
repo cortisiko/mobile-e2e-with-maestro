@@ -53,14 +53,20 @@ jobs:
 
       - name: Install Android Components
         run: |
-          sdkmanager --install "platform-tools" "platforms;android-32" "emulator"
-          sdkmanager --install "system-images;android-32;google_apis;x86_64"
+          sdkmanager --install "platform-tools" "platforms;android-34" "emulator"
+          sdkmanager --install "system-images;android-34;google_apis;x86_64"
           yes | sdkmanager --licenses
 
       - name: Fix Missing INI File
         run: |
           mkdir -p $HOME/.android
           touch $HOME/.android/emu-update-last-check.ini
+      
+      - name: enable KVM for linux runners
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: Create Emulator
         run: |
