@@ -1,0 +1,14 @@
+name: Download Android apk
+on:
+  workflow-dispatch:
+jobs:
+  download-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: download metmask apk from github
+        run: |
+             curl -L -H "Authorization: token ${{ secrets.GH_PAT }}" \
+            "https://github.com/MetaMask/metamask-mobile/releases/latest/app-prod-release.apk" -o metamask.apk
+
+
+  
