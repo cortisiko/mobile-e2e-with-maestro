@@ -7,3 +7,4 @@ Download an APK - I'm using an open-source project's APK to ensure anyone can re
 Create an Emulator on GitHub Actions - Instead of relying on local setups, this repo configures testing environments directly in GitHub Actions workflows.
 Run the Tests - Execute Maestro tests against the target application in the CI environment.
 
+lalala
