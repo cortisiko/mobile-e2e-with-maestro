@@ -1,8 +1,7 @@
 name: Download Android apk
 on:
-  push:
-    branches:
-      - '*'
+  label:
+    types: [created]
 jobs:
   download-apk:
     runs-on: ubuntu-latest
