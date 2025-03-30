@@ -13,6 +13,3 @@ jobs:
           "https://api.github.com/repos/MetaMask/metamask-mobile/releases/latest")
 
           echo "$RELEASE_INFO"
-
-
-  
