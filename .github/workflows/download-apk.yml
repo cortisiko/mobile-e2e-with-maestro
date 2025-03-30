@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: download metmask apk from github
         run: |
-          RELEASE_INFO=$(curl -s -H "Authorization: token $MAESTRO_PAT_FOR_APK_DOWNLOAD" \
+          RELEASE_INFO=$(curl -s -H "Authorization: token ${{ secrets.MAESTRO_PAT_FOR_APK_DOWNLOAD }}" \
           "https://api.github.com/repos/MetaMask/metamask-mobile/releases/latest")
 
           echo "$RELEASE_INFO"
