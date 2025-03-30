@@ -3,8 +3,8 @@ on:
   pull_request:
     types: [labeled]
 jobs:
-  if: contains(github.event.pull_request.labels.*.name, 'create-builds')
   download-apk:
+    if: contains(github.event.pull_request.labels.*.name, 'create-builds')
     runs-on: ubuntu-latest
     steps:
       - name: download metmask apk from github
