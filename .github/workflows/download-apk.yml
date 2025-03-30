@@ -1,8 +1,9 @@
 name: Download Android apk
 on:
   label:
-    types: [created]
+    types: [labeled]
 jobs:
+  if: contains(github.event.pull_request.labels.*.name, 'create-builds')
   download-apk:
     runs-on: ubuntu-latest
     steps:
