@@ -1,6 +1,6 @@
 name: Download Android apk
 on:
-  label:
+  pull_request:
     types: [labeled]
 jobs:
   if: contains(github.event.pull_request.labels.*.name, 'create-builds')
