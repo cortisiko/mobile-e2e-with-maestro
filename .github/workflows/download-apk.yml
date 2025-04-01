@@ -1,0 +1,25 @@
+name: Download Android apk
+on:
+  pull_request:
+    types: [labeled]
+jobs:
+  download-apk:
+    if: contains(github.event.pull_request.labels.*.name, 'create-builds')
+    runs-on: ubuntu-latest
+    steps:
+      - name: download metmask apk from github
+        run: |
+          RELEASE_INFO=$(curl -s -H "Authorization: token ${{ secrets.MAESTRO_PAT_FOR_APK_DOWNLOAD }}" \
+          "https://api.github.com/repos/MetaMask/metamask-mobile/releases/latest")
+
+          echo "$RELEASE_INFO"
+          APK_DOWNLOAD_LINK=$(echo "$RELEASE_INFO" | jq '.assets[].browser_download_url'| jq --slurp '.[0]')
+          echo "$APK_DOWNLOAD_LINK"
+
+          curl -L -o app-prod-release.apk "https://github.com/MetaMask/metamask-mobile/releases/download/v7.43.0/app-prod-release.apk"
+
+      - name: Upload MM APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Metamask APK
+          path: app-prod-release.apk
