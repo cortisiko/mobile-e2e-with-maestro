@@ -13,5 +13,5 @@ jobs:
           "https://api.github.com/repos/MetaMask/metamask-mobile/releases/latest")
 
           echo "$RELEASE_INFO"
-          APK_DOWNLOAD_LINK=$(echo "$RELEASE_INFO" | jq '.assets[].browser_download_url'| jq --slurp '.[0])
+          APK_DOWNLOAD_LINK=$(echo "$RELEASE_INFO" | jq '.assets[].browser_download_url'| jq --slurp '.[0]')
           echo "$APK_DOWNLOAD_LINK"
