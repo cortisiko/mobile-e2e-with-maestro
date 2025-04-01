@@ -15,3 +15,11 @@ jobs:
           echo "$RELEASE_INFO"
           APK_DOWNLOAD_LINK=$(echo "$RELEASE_INFO" | jq '.assets[].browser_download_url'| jq --slurp '.[0]')
           echo "$APK_DOWNLOAD_LINK"
+
+          curl -L -o app-prod-release.apk "https://github.com/MetaMask/metamask-mobile/releases/download/v7.43.0/app-prod-release.apk"
+
+      - name: Upload MM APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Metamask APK
+          path: app-prod-release.apk
