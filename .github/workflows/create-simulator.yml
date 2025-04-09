@@ -1,0 +1,40 @@
+name: iOS Simulator Setup
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  setup-simulator:
+    if: contains(github.event.pull_request.labels.*.name, 'create-builds')
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Xcode
+        run: |
+          sudo xcode-select --switch /Applications/Xcode.app
+          sudo xcodebuild -license accept
+
+      - name: Install iOS Simulator
+        run: |
+          xcrun simctl list devices
+          # xcrun simctl create "iPhone 15" "iPhone 15" "17.2"
+          xcrun simctl boot "iPhone 16 Pro"
+          # xcrun simctl list devices
+
+      - name: Wait for simulator to be ready
+        run: |
+          sleep 30
+          xcrun simctl list devices
+
+      - name: Verify simulator status
+        run: |
+          SIMULATOR_STATUS=$(xcrun simctl list devices | grep "iPhone 16 Pro" | grep -c "Booted")
+          if [ "$SIMULATOR_STATUS" -eq 1 ]; then
+            echo "Simulator is running successfully"
+          else
+            echo "Simulator failed to start"
+            exit 1
+          fi
