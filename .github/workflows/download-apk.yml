@@ -10,13 +10,20 @@ jobs:
       - name: Download latest release apk
         id: apk
         env:
-          GH_TOKEN: ${{ secrets.MAESTRO_PAT_FOR_APK_DOWNLOAD }}
+          # GITHUB_TOKEN is always injected and valid; it only raises the API
+          # rate limit, since PolymarketViewer is a public repo.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           APK_REPO: Streamatico/PolymarketViewer
         run: |
           set -euo pipefail
 
-          RELEASE=$(curl -sSfL \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
+          # Send the auth header only when the token is non-empty: an empty or
+          # invalid "Authorization: Bearer" makes GitHub reject an otherwise
+          # public, anonymous-readable endpoint with 401.
+          AUTH=()
+          [ -n "${GH_TOKEN:-}" ] && AUTH=(-H "Authorization: Bearer ${GH_TOKEN}")
+
+          RELEASE=$(curl -sSfL "${AUTH[@]}" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/repos/${APK_REPO}/releases/latest")
 
