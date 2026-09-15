@@ -7,19 +7,47 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'create-builds')
     runs-on: ubuntu-latest
     steps:
-      - name: download metmask apk from github
+      - name: Download latest release apk
+        id: apk
+        env:
+          # GITHUB_TOKEN is always injected and valid; it only raises the API
+          # rate limit, since PolymarketViewer is a public repo.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APK_REPO: Streamatico/PolymarketViewer
         run: |
-          RELEASE_INFO=$(curl -s -H "Authorization: token ${{ secrets.MAESTRO_PAT_FOR_APK_DOWNLOAD }}" \
-          "https://api.github.com/repos/MetaMask/metamask-mobile/releases/latest")
+          set -euo pipefail
 
-          echo "$RELEASE_INFO"
-          APK_DOWNLOAD_LINK=$(echo "$RELEASE_INFO" | jq '.assets[].browser_download_url'| jq --slurp '.[0]')
-          echo "$APK_DOWNLOAD_LINK"
+          # Send the auth header only when the token is non-empty: an empty or
+          # invalid "Authorization: Bearer" makes GitHub reject an otherwise
+          # public, anonymous-readable endpoint with 401.
+          AUTH=()
+          [ -n "${GH_TOKEN:-}" ] && AUTH=(-H "Authorization: Bearer ${GH_TOKEN}")
 
-          curl -L -o app-prod-release.apk "https://github.com/MetaMask/metamask-mobile/releases/download/v7.43.0/app-prod-release.apk"
+          RELEASE=$(curl -sSfL "${AUTH[@]}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${APK_REPO}/releases/latest")
 
-      - name: Upload MM APK Artifact
+          TAG=$(printf '%s' "$RELEASE" | jq -r '.tag_name')
+
+          # Match on extension, not index: the asset name carries the version
+          # (e.g. polymarket-viewer-1.43-signed.apk) and asset order isn't guaranteed.
+          URL=$(printf '%s' "$RELEASE" \
+            | jq -r '[.assets[] | select(.name | endswith(".apk"))][0].browser_download_url // empty')
+
+          if [ -z "$URL" ]; then
+            echo "::error::No .apk asset on ${APK_REPO} ${TAG}"
+            exit 1
+          fi
+
+          echo "Downloading ${URL}"
+          curl -sSfL -o app-release.apk "$URL"
+          unzip -l app-release.apk > /dev/null  # an apk is a zip; catches a truncated download
+
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload apk artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Metamask APK
-          path: app-prod-release.apk
+          name: polymarket-viewer-apk-${{ steps.apk.outputs.tag }}
+          path: app-release.apk
+          if-no-files-found: error
